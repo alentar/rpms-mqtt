@@ -3,6 +3,7 @@
 const config = require('./config')
 const mosca = require('mosca')
 const mongoose = require('./services/mongoose')
+const auth = require('./services/auth')
 
 const mongooseConnection = mongoose.connect()
 
@@ -27,12 +28,12 @@ var server = new mosca.Server(moscaSettings)
 
 server.on('ready', () => {
   console.log('MQTT broker is up and running')
+  server.authenticate = auth.authenticate
 })
 
 // fired when a message is published
 server.on('published', function (packet, client) {
   console.log('Published', packet)
-  console.log('Client', client)
 })
 // fired when a client connects
 server.on('clientConnected', function (client) {
