@@ -2,12 +2,16 @@
 
 const config = require('./config')
 const mosca = require('mosca')
+const mongoose = require('./services/mongoose')
+
+const mongooseConnection = mongoose.connect()
 
 var pubsubSettings = {
   type: 'mongo',
   url: config.mongo.uri,
   pubsubCollection: 'ascoltatori',
-  mongo: {}
+  mongo: {},
+  connection: mongooseConnection
 }
 
 var moscaSettings = {
