@@ -8,14 +8,6 @@ const Patient = require('./models/patient.model')
 
 const mongooseConnection = mongoose.connect()
 
-function bin2string (array) {
-  var result = ''
-  for (var i = 0; i < array.length; ++i) {
-    result += (String.fromCharCode(array[i]))
-  }
-  return result
-}
-
 var pubsubSettings = {
   type: 'mongo',
   url: config.mongo.uri,
@@ -49,7 +41,7 @@ server.on('published', async (packet, client) => {
     })
 
     const data = {}
-    data[`records.${props.type}`] = { value: bin2string(packet.payload) }
+    data[`records.${props.type}`] = { value: packet.payload.toString() }
     console.log(data)
 
     try {
