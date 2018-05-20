@@ -49,10 +49,14 @@ server.on('published', async (packet, client) => {
     })
 
     const data = {}
-    data[`records.${props.type}`] = bin2string(packet.payload)
+    data[`records.${props.type}`] = { value: bin2string(packet.payload) }
     console.log(data)
 
-    await Patient.findByIdAndUpdate(props.patient, { '$push': data })
+    try {
+      await Patient.findByIdAndUpdate(props.patient, { '$push': data })
+    } catch (err) {
+      console.log(err)
+    }
   }
 })
 
