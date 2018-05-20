@@ -2,12 +2,26 @@
 
 const config = require('./config')
 const mosca = require('mosca')
+const mongoose = require('./services/mongoose')
+const auth = require('./services/auth')
+const Patient = require('./models/patient.model')
+
+const mongooseConnection = mongoose.connect()
+
+function bin2string (array) {
+  var result = ''
+  for (var i = 0; i < array.length; ++i) {
+    result += (String.fromCharCode(array[i]))
+  }
+  return result
+}
 
 var pubsubSettings = {
   type: 'mongo',
   url: config.mongo.uri,
   pubsubCollection: 'ascoltatori',
-  mongo: {}
+  mongo: {},
+  connection: mongooseConnection
 }
 
 var moscaSettings = {
@@ -23,19 +37,35 @@ var server = new mosca.Server(moscaSettings)
 
 server.on('ready', () => {
   console.log('MQTT broker is up and running')
+  server.authenticate = auth.authenticate
 })
 
 // fired when a message is published
-server.on('published', function (packet, client) {
-  console.log('Published', packet)
-  console.log('Client', client)
+server.on('published', async (packet, client) => {
+  if (packet.topic.includes('wards') && packet.topic.includes('patient')) {
+    const props = {}
+    packet.topic.split('/').forEach((elem, i, arr) => {
+      if (i % 2 === 0) props[elem] = arr[i + 1] ? arr[i + 1] : null
+    })
+
+    const data = {}
+    data[`records.${props.type}`] = { value: bin2string(packet.payload) }
+    console.log(data)
+
+    try {
+      await Patient.findByIdAndUpdate(props.patient, { '$push': data })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 })
+
 // fired when a client connects
-server.on('clientConnected', function (client) {
+server.on('clientConnected', (client) => {
   console.log('Client Connected:', client.id)
 })
 
 // fired when a client disconnects
-server.on('clientDisconnected', function (client) {
+server.on('clientDisconnected', (client) => {
   console.log('Client Disconnected:', client.id)
 })

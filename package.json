@@ -12,6 +12,7 @@
     "gulp": "node ./node_modules/gulp/bin/gulp.js"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "dotenv": "^5.0.1",
     "global": "^4.3.2",
     "mongoose": "^5.0.14",
