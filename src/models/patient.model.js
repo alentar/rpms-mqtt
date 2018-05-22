@@ -5,8 +5,12 @@ const mongoose = require('mongoose')
 const recordSchema = new mongoose.Schema({
   value: {
     type: Number
+  },
+
+  time: {
+    type: Date
   }
-}, { timestamps: true })
+})
 
 const patientSchema = new mongoose.Schema({
   bht: {
