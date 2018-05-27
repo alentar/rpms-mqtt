@@ -41,8 +41,7 @@ server.on('published', async (packet, client) => {
     })
 
     const data = {}
-    data[`records.${props.type}`] = { value: packet.payload.toString() }
-    data['time'] = Date.now()
+    data[`records.${props.type}`] = { value: packet.payload.toString(), time: Date.now() }
 
     try {
       await Patient.findByIdAndUpdate(props.patient, { '$push': data })
